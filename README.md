@@ -63,12 +63,16 @@ FileCodeBox 是一个轻量级的文件分享工具，基于 **FastAPI + Vue3** 
 ### 安全特性
 
 - JWT 令牌认证 + 密码 SHA256 加盐哈希
+- **登录防暴力破解**（可配置失败次数/锁定时长，底线保护）
+- **文件类型深度校验**（magic bytes 检测，防扩展名伪造绕过）
+- **Docker 容器非 root 运行**（最小权限原则）
 - SSRF 防护（Webhook 禁止内网地址）
 - CSV 导出防注入 + 条数上限
 - 审计写入熔断器保护（连续失败自动暂停）
 - Nginx 安全响应头（X-Frame-Options / CSP / nosniff）
 - 禁止搜索引擎索引开关（robots meta + robots.txt）
 - IP 上传频率限制 + 提取码错误次数限制
+- 路径穿越防护 + CORS 安全配置 + 多数据库 SQL 兼容
 
 ### 技术亮点
 
