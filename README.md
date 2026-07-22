@@ -257,14 +257,22 @@ location / {
 
 以下为 Lucky666 反向代理的完整配置（在 Lucky 后台「自定义配置」中粘贴）：
 
-> ⚠️ **Lucky666 语法限制**：仅支持以下 nginx 指令：
-> `proxy_set_header`、`proxy_hide_header`、`add_header`、`proxy_redirect`、`location`、`path`
+> ⚠️ **Lucky666 自定义配置语法限制**（官方文档）：
+>
+> **支持的指令**（每行末尾必须有 `;`）：
+> - `proxy_set_header Header Value;` — 设置发送到后端的请求头（Value 为空字符串时删除该头）
+> - `proxy_hide_header Header;` — 删除后端响应返回给浏览器的指定响应头
+> - `add_header Header Value [always];` — 给响应追加 header（加 `always` 后所有状态码生效）
+> - `proxy_redirect From To;` — 替换响应中的 Location/Refresh 重定向地址
+> - `location /path/ { 指令; }` — 按路径分组应用指令（支持前缀/`=`精确/`~`正则/`~*`忽略大小写/`!~`取反）
+> - `path /api/* 指令;` — Lucky 简写语法（支持 `*` 通配、`regexp:` 正则、`!!!` 取反）
 >
 > **不支持**：`client_max_body_size`、`proxy_request_buffering`、`proxy_read_timeout`、`proxy_pass` 等
-> （这些需在 Lucky 主配置界面设置，不能写在自定义配置里）
+> （这些需在 Lucky 主配置界面设置）
 >
-> 每行末尾必须有 `;`，支持 `#` 注释，含空格的值用引号包裹。
-> 常用变量：`$http_host`、`$remote_addr`、`$scheme`、`$proxy_add_x_forwarded_for`、`$http_upgrade`、`$connection_upgrade`、`$server_port`、`$http_请求头名`
+> **常用变量**：`$host`、`$http_host`、`$scheme`、`$request`、`$request_method`、`$request_uri`、`$uri`、`$args`、`$query_string`、`$remote_addr`、`$remote_port`、`$server_port`、`$http_upgrade`、`$connection_upgrade`、`$proxy_add_x_forwarded_for`、`$http_请求头名`
+>
+> **注意**：文件服务只执行响应头相关指令（`add_header`、`proxy_hide_header`）；`proxy_set_header`、`proxy_redirect` 仅用于反向代理场景。
 
 ```nginx
 # ============================================================
