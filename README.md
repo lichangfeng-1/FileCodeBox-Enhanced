@@ -127,6 +127,37 @@ docker compose down -v     # 完全清理（含数据库，慎用）
 
 详见 `.env.example` 中的注释说明。
 
+### 源码部署（免 Docker）
+
+适合不想装 Docker 的用户（学生、轻量 VPS、开发调试）。
+
+**环境要求**：Python 3.12+ 、Node 22+（仅构建时需要）
+
+```bash
+# 1. 后端
+cd backend
+pip install -r requirements.txt
+
+# 2. 前端构建（生成纯静态文件，构建完不再需要 Node）
+cd ../frontend
+npm install && npm run build-only
+# 构建产物在 frontend/dist/ 目录
+
+# 3. 启动（使用 SQLite，零配置）
+cd ../backend
+export DB_TYPE=sqlite          # Linux/Mac
+set DB_TYPE=sqlite             # Windows
+uvicorn main:app --host 0.0.0.0 --port 12345
+```
+
+**访问方式**：
+- 后端 API：`http://你的IP:12345`
+- 前端页面：用任意静态服务器托管 `frontend/dist/`（如 Nginx、Caddy、`python -m http.server`）
+- 管理后台：`http://你的IP:12345/admin`
+
+> 💡 提示：使用 SQLite 时数据库文件自动创建在 `backend/data/` 目录，无需安装任何数据库服务。
+> 如需 PostgreSQL/MySQL，设置 `DB_TYPE`、`DB_HOST` 等环境变量即可（见 `.env.example`）。
+
 ---
 
 ## 系统初始化
