@@ -241,7 +241,7 @@ curl -L "http://localhost:40157/share/select/?code=取件码" -o filename
 ```nginx
 location / {
     proxy_pass http://127.0.0.1:40157;
-    proxy_set_header Host $host;
+    proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
@@ -265,9 +265,9 @@ location / {
 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 proxy_set_header X-Real-IP $remote_addr;
 proxy_set_header X-Forwarded-Proto $scheme;
-proxy_set_header X-Forwarded-Host $host;
+proxy_set_header X-Forwarded-Host $http_host;
 proxy_set_header X-Forwarded-Port $server_port;
-proxy_set_header Host $host;
+proxy_set_header Host $http_host;
 
 # ===== 2. 大文件上传/下载：流式转发 + 断点续传 =====
 proxy_set_header X-Content-Length $http_content_length;
