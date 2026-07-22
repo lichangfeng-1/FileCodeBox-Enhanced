@@ -236,7 +236,7 @@ curl -L "http://localhost:40157/share/select/?code=取件码" -o filename
 
 支持 Nginx / Lucky666 等反向代理。配置要点：必须传递真实客户端 IP 头，否则审计系统记录的将是代理服务器 IP。
 
-### 基础配置（Nginx / Lucky666 通用）
+### 基础配置（标准 Nginx）
 
 ```nginx
 location / {
@@ -251,9 +251,20 @@ location / {
 }
 ```
 
+> 💡 **Lucky666 用户注意**：`client_max_body_size`、`proxy_request_buffering`、`proxy_read_timeout` 不能写在自定义配置里，需在 Lucky 主配置界面设置（请求体大小=0、超时=600s）。自定义配置只写下方的 `proxy_set_header` 等指令。
+
 ### Lucky666 完整自定义配置
 
 以下为 Lucky666 反向代理的完整配置（在 Lucky 后台「自定义配置」中粘贴）：
+
+> ⚠️ **Lucky666 语法限制**：仅支持以下 nginx 指令：
+> `proxy_set_header`、`proxy_hide_header`、`add_header`、`proxy_redirect`、`location`、`path`
+>
+> **不支持**：`client_max_body_size`、`proxy_request_buffering`、`proxy_read_timeout`、`proxy_pass` 等
+> （这些需在 Lucky 主配置界面设置，不能写在自定义配置里）
+>
+> 每行末尾必须有 `;`，支持 `#` 注释，含空格的值用引号包裹。
+> 常用变量：`$http_host`、`$remote_addr`、`$scheme`、`$proxy_add_x_forwarded_for`、`$http_upgrade`、`$connection_upgrade`、`$server_port`、`$http_请求头名`
 
 ```nginx
 # ============================================================
