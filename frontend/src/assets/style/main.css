@@ -1,0 +1,277 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* ============================================================
+   FileCodeBox 毛玻璃主题系统 (Glassmorphism)
+   所有颜色使用 RGB 三元组格式，方便 Tailwind 透明度工具使用
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* ----- 渐变背景 ----- */
+  --bg-gradient-from: 99 102 241;    /* indigo-500 */
+  --bg-gradient-via: 168 85 247;     /* purple-500 */
+  --bg-gradient-to: 236 72 153;      /* pink-500 */
+  --bg-gradient-angle: 135deg;
+
+  /* ----- 毛玻璃卡片 ----- */
+  --glass-bg: 255 255 255;
+  --glass-opacity: 0.72;
+  --glass-border: 255 255 255;
+  --glass-border-opacity: 0.5;
+  --glass-blur: 20px;
+  --glass-shadow: 0 8px 32px rgb(0 0 0 / 0.08);
+  --glass-shadow-lg: 0 20px 60px rgb(0 0 0 / 0.12);
+
+  /* ----- 语义色 ----- */
+  --color-page: 244 244 248;
+  --color-surface: 255 255 255;
+  --color-surface-raised: 255 255 255;
+  --color-surface-muted: 244 244 250;
+  --color-surface-input: 255 255 255;
+  --color-text: 30 30 40;
+  --color-text-strong: 15 15 25;
+  --color-text-muted: 90 90 110;
+  --color-text-subtle: 130 130 150;
+  --color-border: 226 226 235;
+  --color-border-strong: 180 180 195;
+  --color-accent: 99 102 241;
+  --color-accent-hover: 79 70 229;
+  --color-accent-contrast: 255 255 255;
+  --color-danger: 239 68 68;
+  --color-warning: 245 158 11;
+  --color-success: 16 185 129;
+
+  /* ----- 滚动条 ----- */
+  --color-scrollbar: 180 180 195;
+  --color-scrollbar-hover: 140 140 160;
+  --color-focus-ring: 99 102 241;
+
+  /* ----- 兼容旧变量 ----- */
+  --surface-glass: rgb(var(--glass-bg) / var(--glass-opacity));
+  --surface-glass-strong: rgb(var(--glass-bg) / 0.88);
+  --border-glass: rgb(var(--glass-border) / var(--glass-border-opacity));
+  --shadow-color: 0 0 0;
+  --shadow-panel: var(--glass-shadow-lg);
+  --shadow-sidebar: 8px 0 32px rgb(0 0 0 / 0.06);
+  --loading-overlay-opacity: 0.4;
+  --spinner-size: 48px;
+  --spinner-border-width: 3px;
+}
+
+:root.dark {
+  color-scheme: dark;
+
+  /* ----- 渐变背景（暗色）----- */
+  --bg-gradient-from: 15 12 41;
+  --bg-gradient-via: 48 43 99;
+  --bg-gradient-to: 36 36 62;
+  --bg-gradient-angle: 135deg;
+
+  /* ----- 毛玻璃卡片（暗色）----- */
+  --glass-bg: 25 25 40;
+  --glass-opacity: 0.65;
+  --glass-border: 255 255 255;
+  --glass-border-opacity: 0.08;
+  --glass-blur: 24px;
+  --glass-shadow: 0 8px 32px rgb(0 0 0 / 0.3);
+  --glass-shadow-lg: 0 20px 60px rgb(0 0 0 / 0.4);
+
+  /* ----- 语义色（暗色）----- */
+  --color-page: 12 12 20;
+  --color-surface: 24 24 38;
+  --color-surface-raised: 34 34 52;
+  --color-surface-muted: 34 34 52;
+  --color-surface-input: 18 18 30;
+  --color-text: 225 225 235;
+  --color-text-strong: 250 250 255;
+  --color-text-muted: 160 160 180;
+  --color-text-subtle: 120 120 140;
+  --color-border: 55 55 75;
+  --color-border-strong: 90 90 115;
+  --color-accent: 129 140 248;
+  --color-accent-hover: 165 180 252;
+  --color-accent-contrast: 15 15 25;
+  --color-danger: 248 113 113;
+  --color-warning: 251 191 36;
+  --color-success: 52 211 153;
+
+  /* ----- 滚动条 ----- */
+  --color-scrollbar: 70 70 90;
+  --color-scrollbar-hover: 100 100 125;
+  --color-focus-ring: 129 140 248;
+
+  /* ----- 兼容旧变量 ----- */
+  --surface-glass: rgb(var(--glass-bg) / var(--glass-opacity));
+  --surface-glass-strong: rgb(var(--glass-bg) / 0.82);
+  --border-glass: rgb(var(--glass-border) / var(--glass-border-opacity));
+  --shadow-color: 0 0 0;
+  --shadow-panel: var(--glass-shadow-lg);
+  --shadow-sidebar: 8px 0 32px rgb(0 0 0 / 0.3);
+}
+
+/* ============================================================
+   字体
+   ============================================================ */
+@font-face {
+  font-family: 'DingTalk';
+  src: url('@/assets/font/DingTalk.ttf') format('truetype');
+  font-display: swap;
+}
+
+body {
+  font-family: 'DingTalk', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(
+    var(--bg-gradient-angle),
+    rgb(var(--bg-gradient-from)),
+    rgb(var(--bg-gradient-via)),
+    rgb(var(--bg-gradient-to))
+  );
+  background-attachment: fixed;
+  min-height: 100vh;
+  color: rgb(var(--color-text));
+}
+
+::selection {
+  background-color: rgb(var(--color-accent) / 0.2);
+}
+
+/* ============================================================
+   组件类
+   ============================================================ */
+@layer components {
+  /* ----- 页面背景 ----- */
+  .theme-page {
+    background: transparent;
+    color: rgb(var(--color-text));
+  }
+
+  /* ----- 毛玻璃表面 ----- */
+  .theme-surface {
+    background: var(--surface-glass);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-color: var(--border-glass);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .theme-surface-strong {
+    background: var(--surface-glass-strong);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-color: var(--border-glass);
+    box-shadow: var(--glass-shadow-lg);
+  }
+
+  /* ----- 面板（更强的阴影）----- */
+  .theme-panel {
+    background: var(--surface-glass);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-color: var(--border-glass);
+    box-shadow: var(--glass-shadow-lg);
+  }
+
+  /* ----- 分割线 ----- */
+  .theme-divider {
+    border-color: rgb(var(--color-border) / 0.5);
+  }
+
+  /* ----- 文字 ----- */
+  .theme-text { color: rgb(var(--color-text)); }
+  .theme-text-strong { color: rgb(var(--color-text-strong)); }
+  .theme-text-muted { color: rgb(var(--color-text-muted)); }
+
+  /* ----- 图标按钮 ----- */
+  .theme-icon-button {
+    color: rgb(var(--color-text-muted));
+    transition: all 0.2s ease;
+  }
+  .theme-icon-button:hover {
+    background-color: rgb(var(--color-accent) / 0.1);
+    color: rgb(var(--color-accent));
+  }
+
+  /* ----- 品牌按钮（主色调）----- */
+  .theme-brand {
+    background: linear-gradient(135deg, rgb(var(--color-accent)), rgb(var(--color-accent-hover)));
+    color: rgb(var(--color-accent-contrast));
+    box-shadow: 0 4px 16px rgb(var(--color-accent) / 0.3);
+    transition: all 0.2s ease;
+  }
+  .theme-brand:hover {
+    box-shadow: 0 6px 24px rgb(var(--color-accent) / 0.4);
+    transform: translateY(-1px);
+  }
+
+  /* ----- 导航项 ----- */
+  .theme-nav-item {
+    border-color: transparent;
+    color: rgb(var(--color-text-muted));
+    transition: all 0.2s ease;
+  }
+  .theme-nav-item:hover {
+    background-color: rgb(var(--color-accent) / 0.08);
+    color: rgb(var(--color-text-strong));
+  }
+  .theme-nav-item-active {
+    border-color: rgb(var(--color-accent));
+    background-color: rgb(var(--color-accent) / 0.12);
+    color: rgb(var(--color-accent));
+    font-weight: 500;
+  }
+
+  /* ----- 输入控件 ----- */
+  .theme-input {
+    background-color: rgb(var(--color-surface-input) / 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-color: rgb(var(--color-border) / 0.6);
+    color: rgb(var(--color-text-strong));
+    transition: all 0.2s ease;
+  }
+  .theme-input::placeholder { color: rgb(var(--color-text-subtle)); }
+  .theme-input:hover { border-color: rgb(var(--color-border-strong)); }
+  .theme-input:focus {
+    border-color: rgb(var(--color-focus-ring));
+    box-shadow: 0 0 0 3px rgb(var(--color-focus-ring) / 0.15);
+    outline: none;
+  }
+
+  /* ----- 兼容旧 theme-control ----- */
+  .theme-control {
+    background-color: rgb(var(--color-surface-input) / 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-color: rgb(var(--color-border) / 0.6);
+    color: rgb(var(--color-text-strong));
+    transition: all 0.2s ease;
+  }
+  .theme-control::placeholder { color: rgb(var(--color-text-subtle)); }
+  .theme-control:hover { border-color: rgb(var(--color-border-strong)); }
+  .theme-control:focus {
+    border-color: rgb(var(--color-focus-ring));
+    box-shadow: 0 0 0 3px rgb(var(--color-focus-ring) / 0.15);
+    outline: none;
+  }
+
+  /* ----- 警告色 ----- */
+  .theme-warning { color: rgb(var(--color-warning)); }
+
+  /* ----- 毛玻璃卡片快捷类 ----- */
+  .glass-card {
+    background: var(--surface-glass);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--border-glass);
+    border-radius: 1.25rem;
+    box-shadow: var(--glass-shadow);
+    transition: all 0.3s ease;
+  }
+  .glass-card:hover {
+    box-shadow: var(--glass-shadow-lg);
+    transform: translateY(-2px);
+  }
+}

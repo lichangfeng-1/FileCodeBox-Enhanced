@@ -1,0 +1,99 @@
+# ============================================================
+# FileCodeBox 前后端分离版 - Docker Compose 编排
+#
+# 使用方式：
+#   启动: docker compose up --build -d
+#   停止: docker compose down
+#   日志: docker compose logs -f
+#
+# 配置：修改同目录 .env 文件中的端口和数据库参数
+# ============================================================
+
+services:
+  # ---------- 前端（Nginx + Vue 静态文件）----------
+  fcb-frontend:
+    build: ./frontend
+    container_name: fcb-frontend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    networks:
+      - fcb-network
+    depends_on:
+      fcb-backend:
+        condition: service_healthy
+    restart: unless-stopped
+    # REL-005: 日志轮转，防止磁盘撑爆
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- 后端（FastAPI 纯 API）----------
+  fcb-backend:
+    build: ./backend
+    container_name: fcb-backend
+    environment:
+      DB_TYPE: ${DB_TYPE:-postgresql}
+      DB_HOST: ${DB_HOST:-fcb-postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-filecodebox}
+      DB_USER: ${DB_USER:-fcb}
+      DB_PASS: ${DB_PASSWORD:-fcb_change_me_in_production}
+      JWT_SECRET: ${JWT_SECRET:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    volumes:
+      # 默认使用 Docker 存储卷；设置 DATA_DIR 后自动切换为宿主机目录挂载
+      - ${DATA_DIR:-fcb-data}:/app/data
+    networks:
+      - fcb-network
+    # 后端端口仅内部访问，不暴露到宿主机（如需调试取消注释）
+    # ports:
+    #   - "${BACKEND_PORT:-12345}:12345"
+    depends_on:
+      fcb-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    # REL-005: 日志轮转
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------- PostgreSQL 数据库 ----------
+  fcb-postgres:
+    image: postgres:16-alpine
+    container_name: fcb-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-filecodebox}
+      POSTGRES_USER: ${DB_USER:-fcb}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-fcb_change_me_in_production}
+    volumes:
+      # 默认使用 Docker 存储卷；设置 PG_DATA_DIR 后自动切换为宿主机目录挂载
+      - ${PG_DATA_DIR:-fcb-pg-data}:/var/lib/postgresql/data
+    networks:
+      - fcb-network
+    # 数据库端口仅调试用，生产环境建议注释
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-fcb} -d ${DB_NAME:-filecodebox}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    # REL-005: 日志轮转
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  fcb-network:
+    driver: bridge
+
+volumes:
+  fcb-data:
+  fcb-pg-data:
