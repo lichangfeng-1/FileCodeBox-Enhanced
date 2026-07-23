@@ -122,8 +122,22 @@ docker compose down -v     # 完全清理（含数据库，慎用）
 ### 自定义配置
 
 编辑 `.env` 文件后重新 `docker compose up -d`，可配置：
-- 端口、数据库类型、密钥
-- 数据持久化路径（Docker 卷或本地目录）
+
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `FRONTEND_PORT` | 前端访问端口 | 40157 |
+| `DB_TYPE` | 数据库类型（postgresql/mysql/sqlite） | postgresql |
+| `DB_PASSWORD` | 数据库密码 | 无（必填） |
+| `JWT_SECRET` | JWT 签名密钥 | 无（必填） |
+| `ADMIN_PASSWORD` | 管理员密码（首次初始化用） | 空（手动初始化） |
+| `DATA_DIR` | 宿主机数据持久化目录 | Docker 卷 `fcb-data` |
+| `PG_DATA_DIR` | PostgreSQL 数据目录 | Docker 卷 `fcb-pg-data` |
+| `FCB_DATA_DIR` | 容器内数据目录（需与 volumes 挂载点一致） | /app/data |
+
+> 💡 **数据持久化说明**：
+> - 默认使用 Docker 命名卷（`fcb-data`），数据由 Docker 管理
+> - 生产环境推荐设置 `DATA_DIR=/你的路径/data`，方便备份和迁移
+> - `FCB_DATA_DIR` 一般无需修改，仅当你自定义了容器内挂载点时才需同步调整
 
 详见 `.env.example` 中的注释说明。
 

@@ -1,0 +1,16 @@
+# 禁止开发文档进入公开库
+docs/
+ai-memory.md
+session-handoff.md
+bug-tracker.md
+dev-plan.md
+dev-workflow.md
+master-plan.md
+*.md.bak
+
+# 开发环境
+__pycache__/
+*.pyc
+.env
+node_modules/
+versions/

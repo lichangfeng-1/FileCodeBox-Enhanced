@@ -42,9 +42,11 @@ services:
       DB_PASS: ${DB_PASSWORD:-fcb_change_me_in_production}
       JWT_SECRET: ${JWT_SECRET:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # 容器内数据目录（需与 volumes 挂载点一致）
+      FCB_DATA_DIR: ${FCB_DATA_DIR:-/app/data}
     volumes:
       # 默认使用 Docker 存储卷；设置 DATA_DIR 后自动切换为宿主机目录挂载
-      - ${DATA_DIR:-fcb-data}:/app/data
+      - ${DATA_DIR:-fcb-data}:${FCB_DATA_DIR:-/app/data}
     networks:
       - fcb-network
     # 后端端口仅内部访问，不暴露到宿主机（如需调试取消注释）

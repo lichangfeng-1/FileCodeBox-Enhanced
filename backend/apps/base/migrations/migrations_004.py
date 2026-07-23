@@ -12,14 +12,24 @@ async def add_save_path_to_uploadchunk():
             ALTER TABLE uploadchunk ADD COLUMN IF NOT EXISTS save_path VARCHAR(512) NULL;
         """)
     elif db_type == "mysql":
-        # MySQL 不支持 IF NOT EXISTS，用存储过程包装
-        await conn.execute_script("""
-            ALTER TABLE uploadchunk ADD COLUMN save_path VARCHAR(512) NULL;
-        """)
+        # MySQL 不支持 IF NOT EXISTS，先检测列是否存在
+        result = await conn.execute_query(
+            "SELECT COUNT(1) FROM information_schema.columns "
+            "WHERE table_schema = DATABASE() "
+            "AND table_name = 'uploadchunk' AND column_name = 'save_path'"
+        )
+        if not result[1] or result[1][0][0] == 0:
+            await conn.execute_script("""
+                ALTER TABLE uploadchunk ADD COLUMN save_path VARCHAR(512) NULL;
+            """)
     else:
-        await conn.execute_script("""
-            ALTER TABLE uploadchunk ADD COLUMN save_path VARCHAR(512) NULL;
-        """)
+        # SQLite 不支持 IF NOT EXISTS，用 try/except 保护（从旧版升级时列可能已存在）
+        try:
+            await conn.execute_script("""
+                ALTER TABLE uploadchunk ADD COLUMN save_path VARCHAR(512) NULL;
+            """)
+        except Exception:
+            pass
 
 
 async def migrate():
