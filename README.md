@@ -11,8 +11,9 @@
 [![Vue.js](https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=flat-square&logo=vue.js&logoColor=white)](https://vuejs.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![License](https://img.shields.io/badge/License-LGPL--3.0-blue?style=flat-square)](./LICENSE)
 
-基于 [FileCodeBox v2.5.0](https://github.com/vastsa/FileCodeBox) 二次开发
+基于 [FileCodeBox v2.5.0](https://github.com/vastsa/FileCodeBox) 二次开发（[LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html)）
 
 </div>
 
@@ -86,7 +87,22 @@ FileCodeBox 是一个轻量级的文件分享工具，基于 **FastAPI + Vue3** 
 
 ---
 
-## 架构
+## 开发路线图
+
+| 版本 | 主题 | 核心内容 | 状态 |
+|------|------|----------|------|
+| **v2.1** | 🛡️ 安全加固 | 15 项审计修复 + 登录防暴破 + 文件类型深度校验 + 容器非 root | ✅ 已完成 |
+| **v2.1.1** | 🔧 部署修复 | Docker 权限/迁移幂等/Nginx 兼容/镜像源参数化 | ✅ 已完成 |
+| **v2.2** | ⚡ 性能优化 | 多 Worker 并发 + 前端 hash-wasm 加速 + 分片调大 | 🔜 计划中 |
+| **v2.3** | 🧩 多文件 MVP | 多文件同传 + 一码取全部 | 🔜 计划中 |
+| **v2.4** | 📧 轻量通知 | 文件被取走/过期时邮件通知 | 🔜 计划中 |
+| **v2.5** | 💎 打磨收尾 | IP 库管理 + UI 完善 + 运维优化 | 🔜 计划中 |
+
+> 设计原则：做减法、保核心、留退路。每个版本只做最高收益的改动。
+
+---
+
+## 架构与技术栈
 
 ```
 docker compose
@@ -94,6 +110,15 @@ docker compose
 ├── fcb-backend  (FastAPI)   → 纯 REST API（端口 12345）
 └── fcb-postgres (PG 16)     → 数据库
 ```
+
+| 类别 | 技术 |
+|------|------|
+| **后端框架** | FastAPI + Uvicorn |
+| **数据库** | PostgreSQL 16 / MySQL / SQLite（Tortoise ORM） |
+| **前端框架** | Vue 3 + Tailwind CSS + Vite |
+| **容器化** | Docker + Docker Compose + Nginx |
+| **对象存储** | 本地 / S3 协议 / WebDAV |
+| **运行环境** | Python 3.12+ / Node.js 22+ |
 
 ---
 
@@ -269,7 +294,8 @@ location / {
 
 ### Lucky666 完整自定义配置
 
-以下为 Lucky666 反向代理的完整配置（在 Lucky 后台「自定义配置」中粘贴）：
+<details>
+<summary>点击展开 Lucky666 配置详情（在 Lucky 后台「自定义配置」中粘贴）</summary>
 
 > ⚠️ **Lucky666 自定义配置语法限制**（官方文档）：
 >
@@ -358,20 +384,9 @@ location = /health {
 }
 ```
 
+</details>
+
 > **重要：** 配置反代后，系统默认信任所有私有网段（`172.16.0.0/12`、`10.0.0.0/8`、`192.168.0.0/16`）的代理头。如果你的代理服务器是公网 IP，需在管理后台「系统设置 → 信任代理」中添加对应 IP。
-
----
-
-## 技术栈
-
-| 类别 | 技术 |
-|------|------|
-| **后端框架** | FastAPI + Uvicorn |
-| **数据库** | PostgreSQL 16 / MySQL / SQLite（Tortoise ORM） |
-| **前端框架** | Vue 3 + Tailwind CSS + Vite |
-| **容器化** | Docker + Docker Compose + Nginx |
-| **对象存储** | 本地 / S3 协议 / WebDAV |
-| **运行环境** | Python 3.12+ / Node.js 22+ |
 
 ---
 
@@ -395,6 +410,46 @@ location = /health {
     ├── src/             # 源码
     └── package.json
 ```
+
+---
+
+## 版本升级
+
+> ℹ️ 升级不会丢失数据。所有新增环境变量均为可选（有默认值），旧版 `.env` 无需修改即可继续使用。
+
+### 升级步骤
+
+```bash
+# 1. 备份（保险起见）
+cp .env .env.bak
+# 如果用了本地目录持久化，备份 DATA_DIR 和 PG_DATA_DIR 对应的目录
+
+# 2. 拉取新版代码（或手动覆盖文件）
+git pull origin main
+
+# 3. 重新构建并启动
+docker compose up --build -d
+
+# 4. 确认服务正常
+docker compose logs -f --tail 20
+```
+
+### .env 兼容性说明
+
+| 场景 | 处理方式 |
+|------|----------|
+| 旧版 `.env` 没有新变量 | ✅ 无需修改，新变量均有默认值 |
+| 想加速国内构建 | 可选添加 `APT_MIRROR`、`PIP_MIRROR`、`NPM_REGISTRY` |
+| 从 Docker 卷迁移到本地目录 | 设置 `DATA_DIR` 和 `PG_DATA_DIR`，手动复制卷数据 |
+| 从上游 FileCodeBox 迁移 | 数据库表结构兼容（迁移脚本自动补字段），文件目录结构一致 |
+
+### 从上游 FileCodeBox 迁移
+
+如果你之前使用的是 [vastsa/FileCodeBox](https://github.com/vastsa/FileCodeBox) 原版：
+
+1. 数据库无需手动迁移——启动时迁移脚本自动检测并补充缺少的表/字段（幂等，重复执行不报错）
+2. 上传文件目录结构一致（`share/data/年/月/日/uuid/文件名`），直接挂载原数据目录即可
+3. 管理员密码需重新设置（哈希算法不同），通过 `ADMIN_PASSWORD` 环境变量或初始化页面设置
 
 ---
 
@@ -426,14 +481,33 @@ location = /health {
 
 ---
 
+## 许可证
+
+本项目基于 [GNU Lesser General Public License v3.0 (LGPL-3.0)](https://www.gnu.org/licenses/lgpl-3.0.html) 开源。
+
+基于 [FileCodeBox](https://github.com/vastsa/FileCodeBox) by [vastsa](https://github.com/vastsa) 二次开发，原项目同样采用 LGPL-3.0 协议。
+
+**你可以：**
+- 自由使用、修改和分发本项目
+- 用于个人或商业用途
+
+**你需要：**
+- 保留版权声明和许可证副本
+- 修改后的衍生作品必须采用相同许可证（LGPL-3.0）
+- 公开修改后的源代码
+
+详见 [LICENSE](./LICENSE) 文件。
+
+---
+
 ## 免责声明
 
-本项目开源仅供学习交流使用，不得用于任何违法用途，否则后果自负，与作者无关。使用本项目时请保留项目地址和版权信息。
+本项目开源仅供学习交流使用，不得用于任何违法用途，否则后果自负，与作者无关。
 
 ---
 
 <div align="center">
 
-基于 [FileCodeBox](https://github.com/vastsa/FileCodeBox) by [vastsa](https://github.com/vastsa) 二次开发
+基于 [FileCodeBox](https://github.com/vastsa/FileCodeBox) by [vastsa](https://github.com/vastsa) 二次开发 · [LGPL-3.0](./LICENSE)
 
 </div>

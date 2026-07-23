@@ -10,14 +10,25 @@ LABEL maintainer="FileCodeBox"
 # 设置工作目录
 WORKDIR /app
 
+# 镜像源配置（国内用户构建时传 --build-arg APT_MIRROR=mirrors.aliyun.com PIP_MIRROR=https://pypi.tuna.tsinghua.edu.cn/simple）
+ARG APT_MIRROR=""
+ARG PIP_MIRROR=""
+
 # 安装系统依赖（curl 用于健康检查）
-RUN apt-get update && \
+RUN if [ -n "$APT_MIRROR" ]; then \
+      sed -i "s|deb.debian.org|${APT_MIRROR}|g" /etc/apt/sources.list.d/debian.sources; \
+    fi && \
+    apt-get update && \
     apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
 # 先复制依赖文件（利用 Docker 层缓存）
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN if [ -n "$PIP_MIRROR" ]; then \
+      pip install --no-cache-dir -i "$PIP_MIRROR" --trusted-host "$(echo $PIP_MIRROR | sed 's|https\?://||;s|/.*||')" -r requirements.txt; \
+    else \
+      pip install --no-cache-dir -r requirements.txt; \
+    fi
 
 # 复制后端源码
 COPY . .

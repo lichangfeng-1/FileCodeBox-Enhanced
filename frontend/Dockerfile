@@ -6,8 +6,12 @@
 # ---------- Stage 1: 构建 ----------
 FROM node:22-alpine AS builder
 
-# 安装 pnpm
-RUN corepack enable && corepack prepare pnpm@9 --activate
+# npm 镜像配置（国内用户构建时传 --build-arg NPM_REGISTRY=https://registry.npmmirror.com）
+ARG NPM_REGISTRY=""
+
+# 安装 pnpm，可选切换 npm 镜像
+RUN corepack enable && corepack prepare pnpm@9 --activate && \
+    if [ -n "$NPM_REGISTRY" ]; then pnpm config set registry "$NPM_REGISTRY"; fi
 
 WORKDIR /build
 

@@ -12,7 +12,10 @@
 services:
   # ---------- 前端（Nginx + Vue 静态文件）----------
   fcb-frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        NPM_REGISTRY: ${NPM_REGISTRY:-}
     container_name: fcb-frontend
     ports:
       - "${FRONTEND_PORT:-8080}:80"
@@ -31,7 +34,11 @@ services:
 
   # ---------- 后端（FastAPI 纯 API）----------
   fcb-backend:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        APT_MIRROR: ${APT_MIRROR:-}
+        PIP_MIRROR: ${PIP_MIRROR:-}
     container_name: fcb-backend
     environment:
       DB_TYPE: ${DB_TYPE:-postgresql}
