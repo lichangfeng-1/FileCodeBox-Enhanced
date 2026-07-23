@@ -28,11 +28,17 @@ export function useAppShell() {
 
   const handleUnauthorized = () => {
     adminStore.logout()
-    if (router.currentRoute.value.path !== ROUTES.LOGIN) {
+    // 仅在管理页面（requiresAuth）时才跳转登录页
+    // 公开页面（首页/发送页）收到 401 不应打断用户体验
+    const currentRoute = router.currentRoute.value
+    if (
+      currentRoute.meta.requiresAuth &&
+      currentRoute.path !== ROUTES.LOGIN
+    ) {
       void router.push({
         path: ROUTES.LOGIN,
         query: {
-          redirect: router.currentRoute.value.fullPath
+          redirect: currentRoute.fullPath
         }
       })
     }

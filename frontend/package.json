@@ -3,6 +3,7 @@
   "version": "2.4.0",
   "private": true,
   "type": "module",
+  "license": "LGPL-3.0",
   "scripts": {
     "dev": "vite",
     "build": "run-s check:architecture type-check build-only",

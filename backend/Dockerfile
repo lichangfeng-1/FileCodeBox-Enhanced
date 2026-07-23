@@ -29,12 +29,16 @@ RUN if [ ! -f /app/core/ip2region.xdb ]; then \
     fi
 
 # 创建数据目录
-RUN mkdir -p /app/data
+RUN mkdir -p /app/data/share
 
 # SEC-007: 创建非 root 用户运行应用（最小权限原则）
 RUN groupadd -r fcb && useradd -r -g fcb -d /app -s /sbin/nologin fcb && \
     chown -R fcb:fcb /app/data
-USER fcb
+
+# 入口脚本：解决 volume 挂载后权限丢失问题（以 root 修正权限后降权运行）
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 # 暴露 API 端口
 EXPOSE 12345
